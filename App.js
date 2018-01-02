@@ -5,34 +5,26 @@ import {
   Text,
   View,
   Image,
+  Alert,
   StatusBar,
   AsyncStorage,
   TouchableOpacity,
   Picker
 } from 'react-native';
 import { Item, Input, Button } from 'native-base';
-const one = require('./images/1.jpg');
-const two = require('./images/2.jpg');
-const three = require('./images/3.jpg');
-const four = require('./images/4.jpg');
-const five = require('./images/5.jpg');
-const imagePath = [
-  one, two, three, four, five
-]
-let randomNumber = Math.floor(Math.random() * 5);
-console.log(randomNumber);
-const backgroundColor = '#FFF5EE'
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 export default class App extends Component<{}> {
   constructor() {
     super();
     this.state = {
-      image: imagePath[randomNumber],
       totalRounds: 0,
       completedRounds: 0,
       count: 0,
       date: new Date().toLocaleDateString(),
       setRounds: 0,
-      showSet: true
+      showSet: true,
+      showCancel: false
     };
   }
 
@@ -63,7 +55,7 @@ export default class App extends Component<{}> {
   setRounds = () => {
     let rounds = this.state.setRounds;
     if (rounds !== 0) {
-      this.setState({ totalRounds: rounds, setRounds: 0, showSet: false });
+      this.setState({ totalRounds: rounds, setRounds: 0, showSet: false, showCancel: false });
     }
   }
 
@@ -72,9 +64,7 @@ export default class App extends Component<{}> {
       if (this.state.count < 107) {
         this.setState({ count: this.state.count + 1 });
       } else {
-        this.getRandomNumber(randomNumber);
-        console.log(randomNumber);
-        this.setState({ count: 0, completedRounds: this.state.completedRounds + 1, image: imagePath[randomNumber] });
+        this.setState({ count: 0, completedRounds: this.state.completedRounds + 1 });
       }
       setTimeout(() => {
         AsyncStorage.setItem('count', JSON.stringify({
@@ -88,166 +78,178 @@ export default class App extends Component<{}> {
     }
   }
 
-  getRandomNumber(prevNumber) {
-    let number = Math.floor(Math.random() * 5);
-    if (number === prevNumber) {
-      this.getRandomNumber(prevNumber);
-    } else {
-      randomNumber = number;
-    }
-  }
-
   reset = () => {
-    this.setState({
-      totalRounds: 0,
-      completedRounds: 0,
-      count: 0,
-      date: new Date().toLocaleDateString(),
-      setRounds: 0,
-      showSet: true
-    });
-    AsyncStorage.setItem('count', JSON.stringify({
-      totalRounds: 0,
-      completedRounds: 0,
-      count: 0,
-      date: new Date().toLocaleDateString(),
-      setRounds: 0
-    }));
+    Alert.alert(
+      'Reset',
+      'Are you sure you want to reset ? ',
+      [
+        { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+        {
+          text: 'OK', onPress: () => {
+            this.setState({
+              totalRounds: 0,
+              completedRounds: 0,
+              count: 0,
+              date: new Date().toLocaleDateString(),
+              setRounds: 0,
+              showSet: true,
+              showCancel:false
+            });
+            AsyncStorage.setItem('count', JSON.stringify({
+              totalRounds: 0,
+              completedRounds: 0,
+              count: 0,
+              date: new Date().toLocaleDateString(),
+              setRounds: 0,
+            }));
+          }
+        },
+      ],
+      { cancelable: false }
+    );
   }
 
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={styles.mainContainer}>
         <StatusBar
           backgroundColor='#ff8c1a'
           barStyle="light-content"
         />
-        <View style={styles.detailsContainer}>
-          <View style={styles.detailsView}>
-            <Text style={styles.textStyle}>Rounds</Text>
-            <Text style={styles.textStyle}>{this.state.totalRounds}</Text>
+        <Image
+          source={require('./images/background.jpg')} style={styles.backgroundImage}>
+          <View style={styles.topContainer}>
+            <View style={[styles.circleView, styles.topLeftView]}>
+              <Text style={styles.defaultText}>Rounds</Text>
+              <Text style={styles.defaultText}>{this.state.totalRounds}</Text>
+            </View>
+            <Text style={styles.dateText}>{this.state.date}</Text>
+            <View style={[styles.circleView, styles.topRightView]}>
+              <Text style={styles.defaultText}>Count</Text>
+              <Text style={styles.defaultText}>{this.state.count}</Text>
+            </View>
           </View>
-          <View style={styles.detailsView}>
-            <Text style={styles.textStyle}>Count</Text>
-            <Text style={styles.textStyle}>{this.state.count}</Text>
+          <View style={styles.quoteContainer}>
+            <Text style={styles.quotesText}> Jai Sri Krishna Chaitanya Prabhu Nityananda Sri Advaita gadhadara sri vasadhi goura baktha brundha ..... </Text>
+            <Text style={styles.quotesText}> Hare Krishna hare Krishna Krishna Krishna hare hare Hare Rama hare Rama Rama Rama hare hare </Text>
           </View>
-          <View style={styles.detailsView}>
-            <Text style={styles.textStyle}>Completed</Text>
-            <Text style={styles.textStyle}>{this.state.completedRounds}</Text>
+          <View style={styles.bottomContainer}>
+            {this.state.showSet ? <View style={styles.setRoundsContainer}>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  style={styles.picker}
+                  selectedValue={this.state.setRounds}
+                  onValueChange={(itemValue, itemIndex) => this.setState({ setRounds: itemValue })}>
+                  <Picker.Item label="Select Rounds" value="0" />
+                  <Picker.Item label="1" value="1" />
+                  <Picker.Item label="2" value="2" />
+                  <Picker.Item label="4" value="4" />
+                  <Picker.Item label="8" value="8" />
+                  <Picker.Item label="12" value="12" />
+                  <Picker.Item label="16" value="16" />
+                  <Picker.Item label="18" value="18" />
+                  <Picker.Item label="20" value="20" />
+                  <Picker.Item label="22" value="22" />
+                  <Picker.Item label="25" value="25" />
+                  <Picker.Item label="32" value="32" />
+                  <Picker.Item label="64" value="64" />
+                </Picker>
+              </View>
+              <View style={styles.setButtonContainer}>
+                <TouchableOpacity style={styles.setButton} onPress={() => this.setRounds()}>
+                  <Text style={styles.setButtonText}>Set</Text>
+                </TouchableOpacity>
+              </View>
+            </View> : null}
+            {!this.state.showSet ? <View style={styles.changeContainer}>
+              <TouchableOpacity style={[styles.circleView, styles.middleLeftView]} onPress={() => this.setState({ showSet: true, showCancel: true })}>
+                <Text style={styles.defaultText}>Change</Text>
+              </TouchableOpacity>
+            </View> : null}
+            <View style={styles.bottomButtonsContainer}>
+              <View style={[styles.circleView, styles.bottomLeftView]}>
+                <Text style={styles.defaultText}>Completed</Text>
+                <Text style={styles.defaultText}>{this.state.completedRounds}</Text>
+              </View>
+              {!this.state.showSet ? <TouchableOpacity style={[styles.circleView, styles.bottomMiddleView]} onPress={() => this.counting()}>
+                <Text style={styles.defaultText}>Count</Text>
+              </TouchableOpacity> : null}
+              {!this.state.showSet && !this.state.showCancel ? <TouchableOpacity style={[styles.circleView, styles.bottomRightView]} onPress={() => this.reset()}>
+                <Icon name="trash" size={30} color="#900" />
+              </TouchableOpacity> : null}
+              {this.state.showCancel ? <TouchableOpacity style={[styles.circleView, styles.bottomRightView]} onPress={() => this.setState({ showSet: false, showCancel: false })}>
+                <Icon name="remove" size={30} color="#900" />
+              </TouchableOpacity> : null}
+            </View>
           </View>
-        </View>
-        <View style={styles.quoteContainer}>
-          <Text style={styles.quotesText}> Jai Sri Krishna Chaitanya Prabhu Nityananda Sri Advaita gadhadara sri vasadhi goura baktha brundha ..... </Text>
-          <Text style={styles.quotesText}> Hare Krishna hare Krishna Krishna Krishna hare hare Hare Rama hare Rama Rama Rama hare hare </Text>
-        </View>
-        <View style={styles.imageContainer}>
-          <Image
-            source={this.state.image} style={styles.imageView} />
-        </View>
-        <View style={styles.buttonsContainer}>
-          {this.state.showSet ? <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={this.state.setRounds}
-              onValueChange={(itemValue, itemIndex) => this.setState({ setRounds: itemValue })}>
-              <Picker.Item label="Select Rounds" value="0" />
-              <Picker.Item label="1" value="1" />
-              <Picker.Item label="2" value="2" />
-              <Picker.Item label="4" value="4" />
-              <Picker.Item label="8" value="8" />
-              <Picker.Item label="12" value="12" />
-              <Picker.Item label="16" value="16" />
-              <Picker.Item label="18" value="18" />
-              <Picker.Item label="20" value="20" />
-              <Picker.Item label="22" value="22" />
-              <Picker.Item label="25" value="25" />
-              <Picker.Item label="32" value="32" />
-              <Picker.Item label="64" value="64" />
-            </Picker>
-          </View> : null}
-          {this.state.showSet ? <View style={styles.setButtonContainer}>
-            <TouchableOpacity style={styles.setButton} onPress={() => this.setRounds()}>
-              <Text style={styles.setButtonText}>Set</Text>
-            </TouchableOpacity>
-          </View> : null}
-          {!this.state.showSet ? <View style={styles.resetContainer}>
-            <TouchableOpacity style={styles.resetButton} onPress={() => this.reset()}>
-              <Text style={styles.resetButtonText}>Reset</Text>
-            </TouchableOpacity>
-          </View> : null}
-        </View>
-        <View style={styles.counterContainer}>
-          <TouchableOpacity style={styles.countButton} onPress={() => this.counting()}>
-            <Text style={styles.countButtonText}>Count</Text>
-          </TouchableOpacity>
-          <Text style={styles.dateText}>{this.state.date}</Text>
-        </View>
+        </Image>
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: backgroundColor
+  mainContainer: {
+    flex: 1
   },
-  detailsContainer: {
+  backgroundImage: {
+    flex: 1,
+    width: undefined,
+    height: undefined,
+    resizeMode: 'cover'
+  },
+  topContainer: {
     flex: 1,
     flexDirection: 'row',
-    margin: 5
+    justifyContent: "space-between"
   },
-  detailsView: {
-    flex: 1,
-    margin: 2,
-    backgroundColor: '#778899',
-    elevation: 10,
+  circleView: {
+    height: 100,
+    width: 100,
+    elevation:5,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center'
+    borderRadius: 50,
+    borderColor: '#ff8c1a',
+    borderWidth: 2
   },
-  textStyle: {
-    fontSize: 16,
+  topLeftView: {
+    left: -25,
+    top: -25
+  },
+  topRightView: {
+    right: -25,
+    top: -25
+  },
+  defaultText: {
     color: 'white',
-    fontWeight: '400'
+    fontSize: 14
   },
   quoteContainer: {
     flex: 1,
-    margin: 5,
-    padding: 2,
-    elevation: 10,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#9370DB'
+    alignItems: 'center'
   },
   quotesText: {
-    fontSize: 14,
-    textAlign: 'center',
     color: 'white',
-    fontWeight: '400'
+    textAlign: 'center',
+    fontSize: 16
   },
-  imageContainer: {
+  bottomContainer: {
     flex: 2,
-    margin: 5
   },
-  imageView: {
-    flex: 1,
-    justifyContent: 'center',
-    resizeMode: 'contain',
-    alignSelf: 'stretch',
-    width: undefined,
-    height: undefined
-  },
-  buttonsContainer: {
+  setRoundsContainer: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    margin: 5
+    alignItems: 'center'
   },
   pickerContainer: {
     flex: 1,
     height: 50,
-    backgroundColor: 'yellow',
+    borderColor: 'green',
+    borderWidth: 2,
     borderRadius: 25
   },
   setButtonContainer: {
@@ -256,7 +258,8 @@ const styles = StyleSheet.create({
   setButton: {
     width: undefined,
     height: 50,
-    backgroundColor: 'green',
+    borderColor: 'green',
+    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25
@@ -265,13 +268,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white'
   },
+  picker: {
+    color: 'white'
+  },
+  dateText: {
+    fontSize: 18,
+    color: 'white',
+    alignSelf: 'center'
+  },
   resetContainer: {
     flex: 1
   },
   resetButton: {
-    width: 100,
+    width: undefined,
     height: 50,
-    backgroundColor: 'red',
+    borderColor: 'red',
+    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25
@@ -280,24 +292,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white'
   },
-  counterContainer: {
+  bottomButtonsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end'
+  },
+  bottomLeftView: {
+    left: -15,
+    bottom: -25
+  },
+  bottomRightView: {
+    right: -25,
+    bottom: -25
+  },
+  bottomMiddleView: {
+    bottom: -25
+  },
+  changeContainer: {
     flex: 1
   },
-  countButton: {
-    width: undefined,
-    height: 50,
-    backgroundColor: '#ff8c1a',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 25
-  },
-  countButtonText: {
-    fontSize: 16,
-    color: 'white'
-  },
-  dateText: {
-    fontSize: 18,
-    color: 'green',
-    alignSelf: 'center'
+  middleLeftView: {
+    left: -20,
   }
+
 });
